@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Puff Tracker</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <h1>Привет!</h1>
+  <p id="user-info"></p>
+  <button onclick="addPuff()">➕ Сделал тягу</button>
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand(); // Открыть на весь экран
+
+    const user = tg.initDataUnsafe.user;
+    document.getElementById("user-info").innerText = `Ты: ${user.first_name}`;
+
+    function addPuff() {
+      alert("Тяга добавлена!");
+      // тут можно отправлять fetch на backend
+    }
+  </script>
+</body>
+</html>
