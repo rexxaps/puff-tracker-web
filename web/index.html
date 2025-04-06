@@ -6,98 +6,76 @@
     <title>Трекер тяг</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
             margin: 0;
-            padding: 0;
-        }
-
-        .header {
-            background-color: #333;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .main-container {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f8f8;
             display: flex;
-            justify-content: center;
-            align-items: center;
             flex-direction: column;
             height: 100vh;
         }
 
-        .counter-section {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            text-align: center;
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
-        .counter-button {
+        .count {
+            font-size: 120px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 40px;
+        }
+
+        .big-button {
+            font-size: 24px;
+            padding: 25px 60px;
             background-color: #4CAF50;
             color: white;
-            padding: 20px 50px;
-            font-size: 20px;
             border: none;
-            border-radius: 5px;
+            border-radius: 16px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            transition: 0.3s;
         }
 
-        .counter-button:hover {
+        .big-button:hover {
             background-color: #45a049;
         }
 
-        .section {
-            margin: 20px 0;
-            text-align: center;
-        }
-
-        .stats {
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
             background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 15px 0;
+            border-top: 1px solid #ccc;
         }
 
-        .button-link {
+        .nav-link {
             text-decoration: none;
             color: #4CAF50;
             font-weight: bold;
+            font-size: 18px;
+        }
+
+        .nav-link:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>Трекер тяг</h1>
+    <div class="main">
+        <div class="count" id="count-display">0</div>
+        <button class="big-button" onclick="incrementCount()">+1 тяга</button>
     </div>
 
-    <div class="main-container">
-        <!-- Главная страница с кнопкой -->
-        <div class="counter-section">
-            <h2>Тяги за день</h2>
-            <div id="count-display">0</div>
-            <button class="counter-button" onclick="incrementCount()">Добавить тягу</button>
-        </div>
-
-        <!-- Флаги -->
-        <div class="section">
-            <h2><a href="#" class="button-link">Флаг</a></h2>
-        </div>
-
-        <!-- История -->
-        <div class="section">
-            <h2><a href="#" class="button-link">История</a></h2>
-        </div>
-
-        <!-- Статистика -->
-        <div class="section">
-            <h2><a href="#" class="button-link">Статистика</a></h2>
-        </div>
+    <div class="bottom-nav">
+        <a href="#" class="nav-link">Флаг</a>
+        <a href="#" class="nav-link">История</a>
+        <a href="#" class="nav-link">Статистика</a>
     </div>
 
     <script>
