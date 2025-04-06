@@ -3,88 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Трекер тяг</title>
+    <title>Главная</title>
     <style>
         body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
             margin: 0;
-            font-family: 'Arial', sans-serif;
-            background-color: #f8f8f8;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
+            padding: 0;
+            color: white;
         }
 
-        .main {
-            flex: 1;
+        .main-container {
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
+            padding: 60px 20px 100px;
         }
 
-        .count {
-            font-size: 120px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 40px;
+        .counter-section {
+            background-color: #1e1e1e;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
         }
 
-        .big-button {
-            font-size: 24px;
-            padding: 25px 60px;
+        .counter-button {
             background-color: #4CAF50;
             color: white;
+            padding: 30px 80px;
+            font-size: 28px;
             border: none;
-            border-radius: 16px;
+            border-radius: 10px;
             cursor: pointer;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-            transition: 0.3s;
+            transition: background-color 0.3s ease, transform 0.1s;
         }
 
-        .big-button:hover {
+        .counter-button:hover {
             background-color: #45a049;
+            transform: scale(1.05);
         }
 
-        .bottom-nav {
+        #count-display {
+            font-size: 72px;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .nav {
             display: flex;
             justify-content: space-around;
-            background-color: #fff;
+            background-color: #1a1a1a;
             padding: 15px 0;
-            border-top: 1px solid #ccc;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.4);
         }
 
-        .nav-link {
-            text-decoration: none;
+        .nav a {
             color: #4CAF50;
+            text-decoration: none;
             font-weight: bold;
-            font-size: 18px;
-        }
-
-        .nav-link:hover {
-            text-decoration: underline;
         }
     </style>
 </head>
 <body>
 
-    <div class="main">
-        <div class="count" id="count-display">0</div>
-        <button class="big-button" onclick="incrementCount()">+1 тяга</button>
+<div class="main-container" id="home">
+    <div class="counter-section">
+        <div id="count-display">0</div>
+        <button class="counter-button" onclick="incrementCount()"></button>
     </div>
+</div>
 
-    <div class="bottom-nav">
-        <a href="#" class="nav-link">Флаг</a>
-        <a href="#" class="nav-link">История</a>
-        <a href="#" class="nav-link">Статистика</a>
-    </div>
+<div class="nav">
+    <a href="#">Хоум</a>
+    <a href="#">Флаг</a>
+    <a href="#">Статистика</a>
+    <a href="#">История</a>
+</div>
 
-    <script>
-        let count = 0;
+<script>
+    let count = localStorage.getItem('count') ? parseInt(localStorage.getItem('count')) : 0;
+    document.getElementById('count-display').textContent = count;
 
-        function incrementCount() {
-            count++;
-            document.getElementById('count-display').textContent = count;
-        }
-    </script>
+    function incrementCount() {
+        count++;
+        document.getElementById('count-display').textContent = count;
+        localStorage.setItem('count', count);
+    }
+</script>
 </body>
 </html>
