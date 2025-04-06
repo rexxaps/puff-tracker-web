@@ -1,25 +1,112 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Puff Tracker</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Трекер тяг</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .main-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .counter-section {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .counter-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px 50px;
+            font-size: 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .counter-button:hover {
+            background-color: #45a049;
+        }
+
+        .section {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .stats {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .button-link {
+            text-decoration: none;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-  <h1>Привет!</h1>
-  <p id="user-info"></p>
-  <button onclick="addPuff()">➕ Сделал тягу</button>
-  <script>
-    const tg = window.Telegram.WebApp;
-    tg.expand(); // Открыть на весь экран
 
-    const user = tg.initDataUnsafe.user;
-    document.getElementById("user-info").innerText = `Ты: ${user.first_name}`;
+    <div class="header">
+        <h1>Трекер тяг</h1>
+    </div>
 
-    function addPuff() {
-      alert("Тяга добавлена!");
-      // тут можно отправлять fetch на backend
-    }
-  </script>
+    <div class="main-container">
+        <!-- Главная страница с кнопкой -->
+        <div class="counter-section">
+            <h2>Тяги за день</h2>
+            <div id="count-display">0</div>
+            <button class="counter-button" onclick="incrementCount()">Добавить тягу</button>
+        </div>
+
+        <!-- Флаги -->
+        <div class="section">
+            <h2><a href="#" class="button-link">Флаг</a></h2>
+        </div>
+
+        <!-- История -->
+        <div class="section">
+            <h2><a href="#" class="button-link">История</a></h2>
+        </div>
+
+        <!-- Статистика -->
+        <div class="section">
+            <h2><a href="#" class="button-link">Статистика</a></h2>
+        </div>
+    </div>
+
+    <script>
+        let count = 0;
+
+        function incrementCount() {
+            count++;
+            document.getElementById('count-display').textContent = count;
+        }
+    </script>
 </body>
 </html>
