@@ -1,0 +1,45 @@
+GET http://localhost:3000/api/user/123
+User-Agent: IntelliJ HTTP Client/WebStorm 2024.3.5
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+<> 2025-04-09T135741.500.html
+
+###
+
+GET http://localhost:3000/api/user/test123
+User-Agent: IntelliJ HTTP Client/WebStorm 2024.3.5
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+<> 2025-04-09T135124.200.json
+
+###
+
+GET http://localhost:3000/api/user/test123
+User-Agent: IntelliJ HTTP Client/WebStorm 2024.3.5
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+<> 2025-04-09T135100.200.json
+
+###
+
+GET http://localhost:3000/api/user/123
+User-Agent: IntelliJ HTTP Client/WebStorm 2024.3.5
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+<> 2025-04-09T135040.200.json
+
+###
+
+GET http://localhost:3000/api/user/123
+User-Agent: IntelliJ HTTP Client/WebStorm 2024.3.5
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+<> 2025-04-09T134653.200.json
+
+###
+

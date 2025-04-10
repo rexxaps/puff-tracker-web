@@ -1,0 +1,8 @@
+{
+  "counter": 0,
+  "history": [],
+  "flag": {
+    "boughtNew": false,
+    "burnedOut": false
+  }
+}
