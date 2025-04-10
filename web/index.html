@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            margin: 0;
+            padding: 0;
+            color: white;
+        }
+
+        .main-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 60px 20px 100px;
+        }
+
+        .main-container.active {
+            display: flex;
+        }
+
+        .counter-section {
+            background-color: #1e1e1e;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .counter-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 30px 80px;
+            font-size: 28px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s;
+        }
+
+        .counter-button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+
+        #count-display {
+            font-size: 72px;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-around;
+            background-color: #1a1a1a;
+            padding: 15px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.4);
+        }
+
+        .nav a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .stats-container, .flag-container, .history-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 60px 20px 100px;
+        }
+
+        .stats-container.active, .flag-container.active, .history-container.active {
+            display: flex;
+        }
+
+        .stats-buttons, .flag-buttons, .history-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stats-buttons button, .flag-buttons button, .history-buttons button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: none;
+            background-color: #333;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .stats-buttons button.active, .flag-buttons button.active, .history-buttons button.active {
+            background-color: #4CAF50;
+        }
+
+        .stats-value, .flag-status, .history-value {
+            font-size: 48px;
+            font-weight: bold;
+        }
+
+        .history-item {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Хоум -->
+<div class="main-container active" id="home">
+    <div class="counter-section">
+        <div id="count-display">0</div>
+        <button class="counter-button" onclick="incrementCount()">+1</button>
+    </div>
+</div>
+
+<!-- Статистика -->
+<div class="stats-container" id="stats">
+    <div class="stats-buttons">
+        <button onclick="showStats('week')" id="btn-week">Неделя</button>
+        <button onclick="showStats('month')" id="btn-month">Месяц</button>
+        <button onclick="showStats('all')" id="btn-all">Все время</button>
+    </div>
+    <div class="stats-value" id="stats-value">0</div>
+</div>
+
+<!-- Флаг -->
+<div class="flag-container" id="flag">
+    <div class="flag-buttons">
+        <button onclick="markNewDevice()">Новая куплена</button>
+        <button onclick="markDeadDevice()" style="background-color: #e53935;">Сгорела</button>
+    </div>
+    <div class="flag-status" id="device-status">Информация пока не зафиксирована.</div>
+</div>
+
+<!-- История -->
+<div class="history-container" id="history">
+    <h2>История</h2>
+    <div id="history-list"></div>
+    <button onclick="clearHistory()">Очистить историю</button>
+</div>
+
+<!-- Навигация -->
+<div class="nav">
+    <a onclick="navigateTo('home')">Хоум</a>
+    <a onclick="navigateTo('flag')">Флаг</a>
+    <a onclick="navigateTo('stats')">Статистика</a>
+    <a onclick="navigateTo('history')">История</a>
+</div>
+
+<script>
+    let userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'dev';
+    let userData = null;
+
+    async function loadData() {
+        const res = await fetch(`/api/data/${userId}`);
+        userData = await res.json();
+        updateUI();
+    }
+
+    function getToday() {
+        return new Date().toISOString().split('T')[0];
+    }
+
+    function incrementCount() {
+        if (!userData) return;
+        const today = getToday();
+
+        if (!userData.history[today]) userData.history[today] = 0;
+        userData.history[today]++;
+        userData.total++;
+
+        fetch(`/api/data/${userId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userData)
+        });
+
+        updateUI();
+    }
+
+    function updateUI() {
+        // Счетчик за сегодня
+        const today = getToday();
+        const todayCount = userData.history[today] || 0;
+        document.getElementById('count-display').textContent = todayCount;
+
+        // История
+        const historyList = document.getElementById('history-list');
+        historyList.innerHTML = '';
+        Object.keys(userData.history).reverse().forEach(date => {
+            const entry = userData.history[date];
+            const item = document.createElement('div');
+            item.className = 'history-item';
+            item.innerHTML = `<strong>${date}</strong><br>Тяги: ${entry}`;
+            historyList.appendChild(item);
+        });
+
+        // Флаг
+        const flagEl = document.getElementById('device-status');
+        if (userData.deviceStatus === 'new') {
+            flagEl.textContent = 'Новая электронная сигарета куплена!';
+            flagEl.style.color = '#4CAF50';
+        } else if (userData.deviceStatus === 'dead') {
+            flagEl.textContent = 'Электронная сигарета сгорела!';
+            flagEl.style.color = '#e53935';
+        } else {
+            flagEl.textContent = 'Информация пока не зафиксирована.';
+            flagEl.style.color = '';
+        }
+
+        // По дефолту активируем "все время"
+        showStats('all');
+    }
+
+    function navigateTo(sectionId) {
+        document.querySelectorAll('.main-container, .stats-container, .flag-container, .history-container').forEach(el => el.classList.remove('active'));
+        document.getElementById(sectionId)?.classList.add('active');
+    }
+
+    function showStats(range) {
+        if (!userData) return;
+
+        const now = new Date();
+        let total = 0;
+
+        for (let date in userData.history) {
+            const count = userData.history[date];
+            const d = new Date(date);
+            const diffDays = (now - d) / (1000 * 60 * 60 * 24);
+
+            if (
+                (range === 'week' && diffDays <= 7) ||
+                (range === 'month' && diffDays <= 31) ||
+                (range === 'all')
+            ) {
+                total += count;
+            }
+        }
+
+        document.getElementById('stats-value').textContent = total;
+        document.querySelectorAll('.stats-buttons button').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('btn-' + range).classList.add('active');
+    }
+
+    function markNewDevice() {
+        userData.deviceStatus = 'new';
+        saveData();
+        updateUI();
+    }
+
+    function markDeadDevice() {
+        userData.deviceStatus = 'dead';
+        saveData();
+        updateUI();
+    }
+
+    function saveData() {
+        fetch(`/api/data/${userId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userData)
+        });
+    }
+
+    function clearHistory() {
+        userData.history = {};
+        saveData();
+        updateUI();
+    }
+
+    loadData();
+</script>
+
+</body>
+</html>
