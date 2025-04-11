@@ -120,7 +120,7 @@
 <div class="main-container active" id="home">
     <div class="counter-section">
         <div id="count-display">0</div>
-        <button class="counter-button" onclick="incrementCount()">+1</button>
+        <button class="counter-button" onclick="incrementCount()"></button>
     </div>
 </div>
 
@@ -131,7 +131,7 @@
         <button onclick="showStats('month')" id="btn-month">Месяц</button>
         <button onclick="showStats('all')" id="btn-all">Все время</button>
     </div>
-    <div class="stats-value" id="stats-value">42</div>
+    <div class="stats-value" id="stats-value">0</div>
 </div>
 
 <!-- Флаг -->
@@ -159,84 +159,127 @@
 </div>
 
 <script>
-    let count = localStorage.getItem('count') ? parseInt(localStorage.getItem('count')) : 0;
-    document.getElementById('count-display').textContent = count;
+    let userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'dev';
+    let userData = null;
 
-    let deviceStatus = localStorage.getItem('deviceStatus') || 'none'; // Статус устройства
-    let history = JSON.parse(localStorage.getItem('history')) || [];
+    async function loadData() {
+        const res = await fetch(`/api/data/${userId}`);
+        userData = await res.json();
+        updateUI();
+    }
+
+    function getToday() {
+        return new Date().toISOString().split('T')[0];
+    }
 
     function incrementCount() {
-        count++;
-        document.getElementById('count-display').textContent = count;
-        localStorage.setItem('count', count);
+        if (!userData) return;
+        const today = getToday();
+
+        if (!userData.history[today]) userData.history[today] = 0;
+        userData.history[today]++;
+        userData.total++;
+
+        fetch(`/api/data/${userId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userData)
+        });
+
+        updateUI();
+    }
+
+    function updateUI() {
+        // Счетчик за сегодня
+        const today = getToday();
+        const todayCount = userData.history[today] || 0;
+        document.getElementById('count-display').textContent = todayCount;
+
+        // История
+        const historyList = document.getElementById('history-list');
+        historyList.innerHTML = '';
+        Object.keys(userData.history).reverse().forEach(date => {
+            const entry = userData.history[date];
+            const item = document.createElement('div');
+            item.className = 'history-item';
+            item.innerHTML = `<strong>${date}</strong><br>Тяги: ${entry}`;
+            historyList.appendChild(item);
+        });
+
+        // Флаг
+        const flagEl = document.getElementById('device-status');
+        if (userData.deviceStatus === 'new') {
+            flagEl.textContent = 'Новая электронная сигарета куплена!';
+            flagEl.style.color = '#4CAF50';
+        } else if (userData.deviceStatus === 'dead') {
+            flagEl.textContent = 'Электронная сигарета сгорела!';
+            flagEl.style.color = '#e53935';
+        } else {
+            flagEl.textContent = 'Информация пока не зафиксирована.';
+            flagEl.style.color = '';
+        }
+
+        // По дефолту активируем "все время"
+        showStats('all');
     }
 
     function navigateTo(sectionId) {
         document.querySelectorAll('.main-container, .stats-container, .flag-container, .history-container').forEach(el => el.classList.remove('active'));
-        const section = document.getElementById(sectionId);
-        if (section) {
-            section.classList.add('active');
-        }
+        document.getElementById(sectionId)?.classList.add('active');
     }
 
     function showStats(range) {
-        let value = 0;
-        switch (range) {
-            case 'week': value = 77; break;
-            case 'month': value = 420; break;
-            case 'all': value = count; break;
+        if (!userData) return;
+
+        const now = new Date();
+        let total = 0;
+
+        for (let date in userData.history) {
+            const count = userData.history[date];
+            const d = new Date(date);
+            const diffDays = (now - d) / (1000 * 60 * 60 * 24);
+
+            if (
+                (range === 'week' && diffDays <= 7) ||
+                (range === 'month' && diffDays <= 31) ||
+                (range === 'all')
+            ) {
+                total += count;
+            }
         }
-        document.getElementById('stats-value').textContent = value;
+
+        document.getElementById('stats-value').textContent = total;
         document.querySelectorAll('.stats-buttons button').forEach(btn => btn.classList.remove('active'));
         document.getElementById('btn-' + range).classList.add('active');
     }
 
     function markNewDevice() {
-        deviceStatus = 'new';
-        localStorage.setItem('deviceStatus', deviceStatus);
-        document.getElementById('device-status').textContent = 'Новая электронная сигарета куплена!';
-        document.getElementById('device-status').style.color = '#4CAF50';
-        recordHistory('Новая электронка куплена');
+        userData.deviceStatus = 'new';
+        saveData();
+        updateUI();
     }
 
     function markDeadDevice() {
-        deviceStatus = 'dead';
-        localStorage.setItem('deviceStatus', deviceStatus);
-        document.getElementById('device-status').textContent = 'Электронная сигарета сгорела!';
-        document.getElementById('device-status').style.color = '#e53935';
-        recordHistory('Электронка сгорела');
+        userData.deviceStatus = 'dead';
+        saveData();
+        updateUI();
     }
 
-    function recordHistory(event) {
-        let today = new Date().toISOString().split('T')[0]; // Получаем сегодняшнюю дату
-        history.push({
-            date: today,
-            count: count,
-            event: event
-        });
-        localStorage.setItem('history', JSON.stringify(history));
-        updateHistory();
-    }
-
-    function updateHistory() {
-        const historyList = document.getElementById('history-list');
-        historyList.innerHTML = '';
-        history.forEach(entry => {
-            let historyItem = document.createElement('div');
-            historyItem.classList.add('history-item');
-            historyItem.innerHTML = `<strong>${entry.date}</strong><br>Тяги: ${entry.count}<br>Событие: ${entry.event}`;
-            historyList.appendChild(historyItem);
+    function saveData() {
+        fetch(`/api/data/${userId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userData)
         });
     }
 
     function clearHistory() {
-        history = [];
-        localStorage.removeItem('history');
-        updateHistory();
+        userData.history = {};
+        saveData();
+        updateUI();
     }
 
-    // Инициализация истории при загрузке
-    updateHistory();
+    loadData();
 </script>
 
 </body>
