@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Главная</title>
     <style>
         body {
@@ -48,7 +48,7 @@
             transform: scale(1.05);
         }
 
-        #count-display {
+        #counter {
             font-size: 72px;
             margin-bottom: 30px;
             font-weight: bold;
@@ -100,12 +100,18 @@
             transition: 0.2s ease;
         }
 
-        .stats-buttons button.active, .flag-buttons button.active, .history-buttons button.active {
+        .stats-buttons button.active {
             background-color: #4CAF50;
         }
 
-        .stats-value, .flag-status, .history-value {
-            font-size: 48px;
+        .stats-value span {
+            display: block;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .flag-status, .history-value {
+            font-size: 24px;
             font-weight: bold;
         }
 
@@ -119,19 +125,25 @@
 <!-- Хоум -->
 <div class="main-container active" id="home">
     <div class="counter-section">
-        <div id="count-display">0</div>
-        <button class="counter-button" onclick="incrementCount()"></button>
+        <div id="counter">0</div>
+        <button class="counter-button" id="main-button">Добавить</button>
     </div>
 </div>
 
 <!-- Статистика -->
 <div class="stats-container" id="stats">
     <div class="stats-buttons">
+        <button onclick="showStats('day')" id="btn-day">День</button>
         <button onclick="showStats('week')" id="btn-week">Неделя</button>
         <button onclick="showStats('month')" id="btn-month">Месяц</button>
         <button onclick="showStats('all')" id="btn-all">Все время</button>
     </div>
-    <div class="stats-value" id="stats-value">0</div>
+    <div class="stats-value">
+        <span>За день: <span id="stat-day">0</span></span>
+        <span>За неделю: <span id="stat-week">0</span></span>
+        <span>За месяц: <span id="stat-month">0</span></span>
+        <span>Всего: <span id="stat-all">0</span></span>
+    </div>
 </div>
 
 <!-- Флаг -->
@@ -158,91 +170,6 @@
     <a onclick="navigateTo('history')">История</a>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    let count = localStorage.getItem('count') ? parseInt(localStorage.getItem('count')) : 0;
-    document.getElementById('count-display').textContent = count;
-
-    let deviceStatus = localStorage.getItem('deviceStatus') || 'none';
-    let history = JSON.parse(localStorage.getItem('history')) || [];
-
-    function incrementCount() {
-        count++;
-        document.getElementById('count-display').textContent = count;
-        localStorage.setItem('count', count);
-    }
-
-    function navigateTo(sectionId) {
-        document.querySelectorAll('.main-container, .stats-container, .flag-container, .history-container')
-                .forEach(el => el.classList.remove('active'));
-        const section = document.getElementById(sectionId);
-        if (section) section.classList.add('active');
-    }
-
-    function showStats(range) {
-        let value = 0;
-        switch (range) {
-            case 'week': value = 77; break;
-            case 'month': value = 420; break;
-            case 'all': value = count; break;
-        }
-        document.getElementById('stats-value').textContent = value;
-        document.querySelectorAll('.stats-buttons button').forEach(btn => btn.classList.remove('active'));
-        document.getElementById('btn-' + range).classList.add('active');
-    }
-
-    function markNewDevice() {
-        deviceStatus = 'new';
-        localStorage.setItem('deviceStatus', deviceStatus);
-        document.getElementById('device-status').textContent = 'Новая электронная сигарета куплена!';
-        document.getElementById('device-status').style.color = '#4CAF50';
-        recordHistory('Новая электронка куплена');
-    }
-
-    function markDeadDevice() {
-        deviceStatus = 'dead';
-        localStorage.setItem('deviceStatus', deviceStatus);
-        document.getElementById('device-status').textContent = 'Электронная сигарета сгорела!';
-        document.getElementById('device-status').style.color = '#e53935';
-        recordHistory('Электронка сгорела');
-    }
-
-    function recordHistory(event) {
-        let today = new Date().toISOString().split('T')[0];
-        history.push({ date: today, count: count, event: event });
-        localStorage.setItem('history', JSON.stringify(history));
-        updateHistory();
-    }
-
-    function updateHistory() {
-        const historyList = document.getElementById('history-list');
-        historyList.innerHTML = '';
-        history.forEach(entry => {
-            let historyItem = document.createElement('div');
-            historyItem.classList.add('history-item');
-            historyItem.innerHTML = `<strong>${entry.date}</strong><br>Тяги: ${entry.count}<br>Событие: ${entry.event}`;
-            historyList.appendChild(historyItem);
-        });
-    }
-
-    function clearHistory() {
-        history = [];
-        localStorage.removeItem('history');
-        updateHistory();
-    }
-
-    // Привязываем функции к window, чтобы они были доступны в HTML
-    window.incrementCount = incrementCount;
-    window.navigateTo = navigateTo;
-    window.showStats = showStats;
-    window.markNewDevice = markNewDevice;
-    window.markDeadDevice = markDeadDevice;
-    window.clearHistory = clearHistory;
-
-    updateHistory(); // Инициализируем историю
-});
-</script>
-
-
+<script src="main.js"></script>
 </body>
 </html>
